@@ -201,7 +201,7 @@ cmake_dependent_option(FT_REQUIRE_PNG
   "NOT FT_DISABLE_PNG" OFF)
 
 option(FT_DISABLE_HARFBUZZ
-  "Disable HarfBuzz (used for improving auto-hinting of OpenType fonts)." OFF)
+  "Disable HarfBuzz (used for improving auto-hinting of OpenType fonts)." ON)
 cmake_dependent_option(FT_DYNAMIC_HARFBUZZ
   "Load HarfBuzz library dynamically at runtime, if possible." ON
   "NOT FT_DISABLE_HARFBUZZ" OFF)
