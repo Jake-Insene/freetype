@@ -1675,8 +1675,8 @@
    *   distance ::
    *     The distance (not) to round.
    *
-   *   color ::
-   *     The engine compensation color.
+   *   compensation ::
+   *     The engine compensation.
    *
    * @Return:
    *   The compensated distance.
@@ -1718,8 +1718,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   color ::
-   *     The engine compensation color.
+   *   compensation ::
+   *     The engine compensation.
    *
    * @Return:
    *   Rounded distance.
@@ -1763,8 +1763,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   color ::
-   *     The engine compensation color.
+   *   compensation ::
+   *     The engine compensation.
    *
    * @Return:
    *   Rounded distance.
@@ -1810,8 +1810,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   color ::
-   *     The engine compensation color.
+   *   compensation ::
+   *     The engine compensation.
    *
    * @Return:
    *   Rounded distance.
@@ -1854,8 +1854,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   color ::
-   *     The engine compensation color.
+   *   compensation ::
+   *     The engine compensation.
    *
    * @Return:
    *   Rounded distance.
@@ -1899,8 +1899,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   color ::
-   *     The engine compensation color.
+   *   compensation ::
+   *     The engine compensation.
    *
    * @Return:
    *   Rounded distance.
@@ -1944,8 +1944,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   color ::
-   *     The engine compensation color.
+   *   compensation ::
+   *     The engine compensation.
    *
    * @Return:
    *   Rounded distance.
@@ -1999,8 +1999,8 @@
    *   distance ::
    *     The distance to round.
    *
-   *   color ::
-   *     The engine compensation color.
+   *   compensation ::
+   *     The engine compensation.
    *
    * @Return:
    *   Rounded distance.
@@ -2567,7 +2567,7 @@
   Ins_ODD( TT_ExecContext  exc,
            FT_Long*        args )
   {
-    args[0] = ( ( exc->func_round( exc, args[0], 0 ) & 127 ) == 64 );
+    args[0] = ( ( exc->func_round( exc, args[0], 0 ) & 64 ) == 64 );
   }
 
 
@@ -2581,7 +2581,7 @@
   Ins_EVEN( TT_ExecContext  exc,
             FT_Long*        args )
   {
-    args[0] = ( ( exc->func_round( exc, args[0], 0 ) & 127 ) == 0 );
+    args[0] = ( ( exc->func_round( exc, args[0], 0 ) & 64 ) == 0 );
   }
 
 
@@ -5296,7 +5296,7 @@
     if ( ( exc->opcode & 1 ) != 0 )
     {
       cur_dist = FAST_PROJECT( &exc->zp0.cur[point] );
-      distance = SUB_LONG( exc->func_round( exc, cur_dist, 3 ), cur_dist );
+      distance = SUB_LONG( exc->func_round( exc, cur_dist, 0 ), cur_dist );
     }
     else
       distance = 0;
@@ -5381,7 +5381,7 @@
       if ( delta > control_value_cutin )
         distance = org_dist;
 
-      distance = exc->func_round( exc, distance, 3 );
+      distance = exc->func_round( exc, distance, 0 );
     }
 
     exc->func_move( exc, &exc->zp0, point, SUB_LONG( distance, org_dist ) );
@@ -5403,7 +5403,7 @@
             FT_Long*        args )
   {
     FT_UShort   point = 0;
-    FT_F26Dot6  org_dist, distance;
+    FT_F26Dot6  org_dist, distance, compensation;
 
 
     point = (FT_UShort)args[0];
@@ -5472,12 +5472,12 @@
 
     /* round flag */
 
+    compensation = exc->GS.compensation[exc->opcode & 3];
+
     if ( ( exc->opcode & 4 ) != 0 )
-    {
-      distance = exc->func_round( exc, org_dist, exc->opcode & 3 );
-    }
+      distance = exc->func_round( exc, org_dist, compensation );
     else
-      distance = Round_None( exc, org_dist, exc->opcode & 3 );
+      distance = Round_None( exc, org_dist, compensation );
 
     /* minimum distance flag */
 
@@ -5529,7 +5529,8 @@
     FT_F26Dot6  cvt_dist,
                 distance,
                 cur_dist,
-                org_dist;
+                org_dist,
+                compensation;
 
     FT_F26Dot6  delta;
 
@@ -5595,6 +5596,8 @@
 
     /* control value cut-in and round */
 
+    compensation = exc->GS.compensation[exc->opcode & 3];
+
     if ( ( exc->opcode & 4 ) != 0 )
     {
       /* XXX: UNDOCUMENTED!  Only perform cut-in test when both points */
@@ -5625,10 +5628,10 @@
           cvt_dist = org_dist;
       }
 
-      distance = exc->func_round( exc, cvt_dist, exc->opcode & 3 );
+      distance = exc->func_round( exc, cvt_dist, compensation );
     }
     else
-      distance = Round_None( exc, cvt_dist, exc->opcode & 3 );
+      distance = Round_None( exc, cvt_dist, compensation );
 
     /* minimum distance test */
 
